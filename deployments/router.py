@@ -21,6 +21,38 @@ async def get_deployments_handler(deployments_service: DeploymentsServiceDep,
     }
 
 
+@router.get('/weakest')
+@exception_handler
+async def get_deployment_handler(deployments_service: DeploymentsServiceDep,
+                                 upstreams_service: UpstreamsServiceDep,
+                                 uow: UOWDep):
+    deployments = await deployments_service.read_deployments(uow)
+    if not deployments:
+        raise DeploymentNotFoundError
+
+    upstreams = await upstreams_service.read_upstreams(uow)
+
+    deployments_workload = dict()
+    for upstream in upstreams:
+        deployments_workload[upstream.deployment_uuid] = deployments_workload.get(upstream.deployment_uuid, 0) + 1
+
+    weakest_uuid = deployments[0].uuid
+    for uuid, workload in deployments_workload.items():
+        if workload < deployments_workload[weakest_uuid]:
+            weakest_uuid = uuid
+
+    weakest = deployments[0]
+    for deployment in deployments:
+        if deployment.uuid == weakest_uuid:
+            weakest = deployment
+            break
+
+    return {
+        'data': weakest,
+        'detail': 'Deployment was selected.'
+    }
+
+
 @router.get('/{uuid}')
 @exception_handler
 async def get_deployment_handler(deployments_service: DeploymentsServiceDep,

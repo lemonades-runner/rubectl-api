@@ -14,7 +14,7 @@ router = APIRouter(prefix='/upstreams', tags=['Upstreams'])
 @exception_handler
 async def get_upstreams_handler(upstreams_service: UpstreamsServiceDep,
                                 uow: UOWDep,
-                                deployment_uuid: str | None = None):
+                                deployment_uuid: UUID | None = None):
     upstreams = await upstreams_service.read_upstreams(uow, deployment_uuid=deployment_uuid)
     return {
         'data': upstreams,

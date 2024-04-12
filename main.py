@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from deployments.router import router as deployments_router
 from upstreams.router import router as upstreams_router
 
-from utils.config import VERSION, DB_URL
+from utils.config import VERSION
 
 app = FastAPI(
     title='Rubectl API',
